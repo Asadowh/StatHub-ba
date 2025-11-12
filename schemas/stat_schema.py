@@ -5,8 +5,6 @@ class StatBase(BaseModel):
     match_id: int
     goals: int = 0
     assists: int = 0
-    yellow_cards: int = 0
-    red_cards: int = 0
 
 class StatCreate(StatBase):
     pass

@@ -26,7 +26,8 @@ def register_user(request: UserCreate, db: Session = Depends(get_db)):
         username=request.username,
         email=request.email,
         hashed_password=hashed_password,
-        role=request.role
+        role="player",
+        is_active = True
     )
 
     db.add(new_user)

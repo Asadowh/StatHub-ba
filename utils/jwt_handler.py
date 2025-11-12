@@ -31,3 +31,39 @@ def verify_access_token(token: str):
         return payload
     except JWTError:
         return None
+    
+# --- Email Verification Token Helpers ---
+
+EMAIL_TOKEN_EXPIRE_HOURS = 24  # token valid for 1 day
+
+def create_email_token(email: str):
+    """
+    Create a JWT token used for email verification.
+    Encodes the user's email and an expiry time.
+    """
+    expire = datetime.utcnow() + timedelta(hours=EMAIL_TOKEN_EXPIRE_HOURS)
+    payload = {"sub": email, "exp": expire, "type": "email_verification"}
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return token
+
+
+def verify_email_token(token: str):
+    """
+    Verify an email verification token and return the email if valid.
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") != "email_verification":
+            return None  # not a verification token
+        return payload.get("sub")  # return email
+    except JWTError:
+        return None
+
+
+if __name__ == "__main__":
+    test_email = "omar@gmail.com"
+    token = create_email_token(test_email)
+    print("Generated Token:", token)
+
+    decoded = verify_email_token(token)
+    print("Decoded Email:", decoded)

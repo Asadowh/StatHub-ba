@@ -18,8 +18,6 @@ def create_stat(request: StatCreate, db: Session = Depends(get_db)):
         match_id=request.match_id,
         goals=request.goals,
         assists=request.assists,
-        yellow_cards=request.yellow_cards,
-        red_cards=request.red_cards
     )
     db.add(new_stat)
     db.commit()

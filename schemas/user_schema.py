@@ -5,8 +5,6 @@ from datetime import datetime
 class UserBase(BaseModel):
     username: str
     email: EmailStr
-    role: str = "player"
-    is_active: bool = True
     
 class UserLogin(BaseModel):
     identifier: str  # can be username OR email
@@ -20,6 +18,8 @@ class UserCreate(UserBase):
 class UserResponse(UserBase):
     id: int
     created_at: datetime
+    role: str
+    is_active: bool
 
     class Config:
         orm_mode = True

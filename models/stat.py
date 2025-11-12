@@ -10,8 +10,6 @@ class Stat(Base):
     match_id = Column(Integer, ForeignKey("matches.id"), nullable=False)
     goals = Column(Integer, default=0)
     assists = Column(Integer, default=0)
-    yellow_cards = Column(Integer, default=0)
-    red_cards = Column(Integer, default=0)
 
     # relationships
     match = relationship("Match", backref="stats")
