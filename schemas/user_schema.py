@@ -7,6 +7,10 @@ class UserBase(BaseModel):
     email: EmailStr
     role: str = "player"
     is_active: bool = True
+    
+class UserLogin(BaseModel):
+    identifier: str  # can be username OR email
+    password: str
 
 # For creating a new user (register)
 class UserCreate(UserBase):

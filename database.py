@@ -11,6 +11,8 @@ load_dotenv()
 # DATABASE_URL=postgresql://postgres:password@localhost/stathub
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+print("Loaded DATABASE_URL:", DATABASE_URL)
+
 
 # --- SQLAlchemy setup ---
 engine = create_engine(DATABASE_URL)

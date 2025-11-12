@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from database import get_db
 from models.user import User
-from schemas.user_schema import UserCreate, UserResponse
+from schemas.user_schema import UserCreate, UserResponse, UserLogin
 from utils.hashing import Hash
 from utils.jwt_handler import create_access_token
 
@@ -37,8 +38,8 @@ def register_user(request: UserCreate, db: Session = Depends(get_db)):
 
 # --- Login User ---
 @router.post("/login")
-def login_user(request: UserCreate, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == request.email).first()
+def login_user(request: UserLogin, db: Session = Depends(get_db)):
+    user = db.query(User).filter(or_(User.email == request.identifier, User.username == request.identifier)).first()
 
     if not user or not Hash.verify(request.password, user.hashed_password):
         raise HTTPException(
