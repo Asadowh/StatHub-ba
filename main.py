@@ -32,4 +32,4 @@ app.include_router(reactions.router)
 # Root route
 @app.get("/")
 def root():
-    return {"message": "StatHub API is running 🚀"}
+    return {"AMCUGUVU YEYIM SEMAYE, HEMEN NOMREDEYEM ZENG ELE MAA"}
