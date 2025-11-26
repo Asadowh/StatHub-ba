@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from database import engine, Base
-from routers import auth, matches, stats, trophies, search, news, comments, reactions
+from routers import auth, matches, stats, trophies, search, news, comments, reactions, ratings
 import models.user
 import models.match
 import models.stat
 import models.trophy
 import models.news
+import models.rating
 import models.comment
 import models.reaction
 
@@ -28,6 +29,7 @@ app.include_router(search.router)
 app.include_router(news.router)
 app.include_router(comments.router)
 app.include_router(reactions.router)
+app.include_router(ratings.router)
 
 # Root route
 @app.get("/")

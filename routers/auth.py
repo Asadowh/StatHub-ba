@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from database import get_db
 from models.user import User
-from schemas.user_schema import UserCreate, UserResponse, UserLogin
+from schemas.auth_schema import SignupSchema, LoginSchema, TokenResponse
 from utils.hashing import Hash
 from utils.jwt_handler import create_access_token
 
@@ -13,8 +13,8 @@ router = APIRouter(
 )
 
 # --- Register User ---
-@router.post("/register", response_model=UserResponse)
-def register_user(request: UserCreate, db: Session = Depends(get_db)):
+@router.post("/register", response_model=TokenResponse)
+def register_user(request: SignupSchema, db: Session = Depends(get_db)):
     # Check if user already exists
     existing_user = db.query(User).filter(User.email == request.email).first()
     if existing_user:
@@ -39,7 +39,7 @@ def register_user(request: UserCreate, db: Session = Depends(get_db)):
 
 # --- Login User ---
 @router.post("/login")
-def login_user(request: UserLogin, db: Session = Depends(get_db)):
+def login_user(request: LoginSchema, db: Session = Depends(get_db)):
     user = db.query(User).filter(or_(User.email == request.identifier, User.username == request.identifier)).first()
 
     if not user or not Hash.verify(request.password, user.hashed_password):

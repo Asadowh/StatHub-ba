@@ -25,7 +25,6 @@ def create_rating(request: RatingCreate, db: Session = Depends(get_db)):
     new_rating = Rating(
         player_name=request.player_name,
         match_id=request.match_id,
-        voter_id=request.voter_id,
         rating=request.rating
     )
 

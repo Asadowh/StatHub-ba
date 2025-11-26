@@ -1,25 +1,51 @@
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
+from typing import Optional
+from datetime import date
 
-# Shared fields
 class UserBase(BaseModel):
-    username: str
-    email: EmailStr
-    
-class UserLogin(BaseModel):
-    identifier: str  # can be username OR email
-    password: str
-
-# For creating a new user (register)
-class UserCreate(UserBase):
-    password: str
-
-# For showing user data in responses
-class UserResponse(UserBase):
     id: int
-    created_at: datetime
-    role: str
-    is_active: bool
+    email: EmailStr
+    username: str
+    full_name: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserPublic(BaseModel):
+    id: int
+    username: str
+    full_name: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    
+    height: Optional[int] = None
+    jersey_number: Optional[int] = None
+    nationality: Optional[str] = None
+    birth_date: Optional[date] = None
+    favorite_position: Optional[str] = None
+    personal_quote: Optional[str] = None
+
+
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
+    username: str
+    full_name: str
+
+    height: Optional[int] = None
+    jersey_number: Optional[int] = None
+    nationality: Optional[str] = None
+    birth_date: Optional[date] = None
+    favorite_position: Optional[str] = None
+    personal_quote: Optional[str] = None
 
     class Config:
         orm_mode = True
