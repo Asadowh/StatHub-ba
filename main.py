@@ -1,37 +1,92 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from database import engine, Base
-from routers import auth, matches, stats, trophies, search, news, comments, reactions, ratings
+
+# Import all models so they are registered for table creation
 import models.user
 import models.match
 import models.stat
+import models.rating
 import models.trophy
 import models.news
-import models.rating
 import models.comment
 import models.reaction
+import models.achievement
 
-# Initialize FastAPI app
-app = FastAPI(
-    title="StatHub Backend",
-    version="1.0.7",
-    description="Backend API for StatHub – football player stats, matches, trophies, search, news, comments, reactions, and authentication."
+# Import routers
+from routers import (
+    auth,
+    users,
+    matches,
+    stats,
+    ratings,
+    trophies,
+    news,
+    comments,
+    reactions,
+    achievements,
+    search,
+    dashboard,
+    settings
 )
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# ---------------------------------------------------------
+# FastAPI App Initialization
+# ---------------------------------------------------------
+app = FastAPI(
+    title="StatHub Backend",
+    version="1.0.0",
+    description="Backend API for StatHub – authentication, profiles, stats, matches, news, reactions, trophies, achievements, dashboard, and search."
+)
 
-# Include Routers
+
+# ---------------------------------------------------------
+# CORS (FRONTEND ACCESS)
+# ---------------------------------------------------------
+origins = [
+    "*",  # allow all for now (you can lock later)
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# ---------------------------------------------------------
+# Create Tables at Startup
+# ---------------------------------------------------------
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)
+    print("📦 Database tables created / verified.")
+
+
+# ---------------------------------------------------------
+# Routers Registration
+# ---------------------------------------------------------
 app.include_router(auth.router)
+app.include_router(users.router)
 app.include_router(matches.router)
 app.include_router(stats.router)
+app.include_router(ratings.router)
 app.include_router(trophies.router)
-app.include_router(search.router)
 app.include_router(news.router)
 app.include_router(comments.router)
 app.include_router(reactions.router)
-app.include_router(ratings.router)
+app.include_router(achievements.router)
+app.include_router(search.router)
+app.include_router(dashboard.router)
+app.include_router(settings.router)
 
-# Root route
+
+# ---------------------------------------------------------
+# Root Endpoint
+# ---------------------------------------------------------
 @app.get("/")
 def root():
-    return {"AMCUGUVU YEYIM SEMAYE, HEMEN NOMREDEYEM ZENG ELE MAA"}
+    return {"message": "StatHub API is running 🚀"}

@@ -1,51 +1,31 @@
 from pydantic import BaseModel, EmailStr
+from datetime import datetime
 from typing import Optional
-from datetime import date
 
-class UserBase(BaseModel):
-    id: int
+class UserLogin(BaseModel):
+    identifier: str   # username OR email
+    password: str
+
+class UserCreate(BaseModel):
+    username: str
     email: EmailStr
-    username: str
-    full_name: str
-
-    class Config:
-        orm_mode = True
-
-
-class UserPublic(BaseModel):
-    id: int
-    username: str
-    full_name: str
-
-    class Config:
-        orm_mode = True
-
+    full_name: Optional[str] = None
+    password: str
 
 class UserUpdate(BaseModel):
-    full_name: Optional[str] = None
     username: Optional[str] = None
     email: Optional[EmailStr] = None
-    
-    height: Optional[int] = None
-    jersey_number: Optional[int] = None
-    nationality: Optional[str] = None
-    birth_date: Optional[date] = None
-    favorite_position: Optional[str] = None
-    personal_quote: Optional[str] = None
-
+    full_name: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: int
-    email: EmailStr
     username: str
-    full_name: str
-
-    height: Optional[int] = None
-    jersey_number: Optional[int] = None
-    nationality: Optional[str] = None
-    birth_date: Optional[date] = None
-    favorite_position: Optional[str] = None
-    personal_quote: Optional[str] = None
+    email: EmailStr
+    full_name: Optional[str]
+    role: str
+    is_active: bool
+    is_email_verified: bool
+    created_at: datetime
 
     class Config:
         orm_mode = True

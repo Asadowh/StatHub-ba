@@ -1,17 +1,22 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
-from models import rating
-
+from datetime import datetime
 
 class Stat(Base):
     __tablename__ = "stats"
 
     id = Column(Integer, primary_key=True, index=True)
-    player_name = Column(String(100), nullable=False)
+
     match_id = Column(Integer, ForeignKey("matches.id"), nullable=False)
+    player_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
     goals = Column(Integer, default=0)
     assists = Column(Integer, default=0)
+    rating = Column(Float, default=0.0)
 
-    # relationships
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
     match = relationship("Match", backref="stats")
+    player = relationship("User", backref="stats")

@@ -1,15 +1,12 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-class TrophyBase(BaseModel):
+class TrophyCreate(BaseModel):
     name: str
     description: str | None = None
     awarded_to: int
 
-class TrophyCreate(TrophyBase):
-    pass
-
-class TrophyResponse(TrophyBase):
+class TrophyResponse(TrophyCreate):
     id: int
     date_awarded: datetime
 

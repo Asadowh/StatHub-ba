@@ -1,18 +1,15 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-class ReactionBase(BaseModel):
+class ReactionCreate(BaseModel):
     type: str
-    user_id: int
     news_id: int | None = None
     comment_id: int | None = None
     match_id: int | None = None
 
-class ReactionCreate(ReactionBase):
-    pass
-
-class ReactionResponse(ReactionBase):
+class ReactionResponse(ReactionCreate):
     id: int
+    user_id: int
     created_at: datetime
 
     class Config:

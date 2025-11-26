@@ -1,69 +1,79 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")  # fallback just in case
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60  # 1 hour token lifespan
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+EMAIL_TOKEN_EXPIRE_HOURS = 24
+RESET_TOKEN_EXPIRE_MINUTES = 30
 
 
+# ---------------------------------------------------------
+# Access Token (Login Token)
+# ---------------------------------------------------------
 def create_access_token(data: dict):
-    """
-    Create a JWT access token.
-    """
-    to_encode = data.copy()
+    data = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    data.update({"exp": expire, "type": "access"})
+    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def verify_access_token(token: str):
-    """
-    Verify and decode a JWT token.
-    """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") != "access":
+            return None
         return payload
     except JWTError:
         return None
-    
-# --- Email Verification Token Helpers ---
 
-EMAIL_TOKEN_EXPIRE_HOURS = 24  # token valid for 1 day
 
+# ---------------------------------------------------------
+# Email Verification Token
+# ---------------------------------------------------------
 def create_email_token(email: str):
-    """
-    Create a JWT token used for email verification.
-    Encodes the user's email and an expiry time.
-    """
     expire = datetime.utcnow() + timedelta(hours=EMAIL_TOKEN_EXPIRE_HOURS)
-    payload = {"sub": email, "exp": expire, "type": "email_verification"}
-    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    return token
+    payload = {
+        "sub": email,
+        "exp": expire,
+        "type": "email_verification"
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def verify_email_token(token: str):
-    """
-    Verify an email verification token and return the email if valid.
-    """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         if payload.get("type") != "email_verification":
-            return None  # not a verification token
-        return payload.get("sub")  # return email
+            return None
+        return payload.get("sub")
     except JWTError:
         return None
 
 
-if __name__ == "__main__":
-    test_email = "omar@gmail.com"
-    token = create_email_token(test_email)
-    print("Generated Token:", token)
+# ---------------------------------------------------------
+# Password Reset Token
+# ---------------------------------------------------------
+def create_reset_token(email: str):
+    expire = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
+    payload = {
+        "sub": email,
+        "exp": expire,
+        "type": "password_reset"
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-    decoded = verify_email_token(token)
-    print("Decoded Email:", decoded)
+
+def verify_reset_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") != "password_reset":
+            return None
+        return payload.get("sub")
+    except JWTError:
+        return None

@@ -4,29 +4,52 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
-# --- Load environment variables ---
+# --------------------------------------------------------
+# Load environment variables
+# --------------------------------------------------------
 load_dotenv()
 
-# Example .env file content (make sure you have this in your project root):
-# DATABASE_URL=postgresql://postgres:password@localhost/stathub
-
 DATABASE_URL = os.getenv("DATABASE_URL")
-print("Loaded DATABASE_URL:", DATABASE_URL)
+if not DATABASE_URL:
+    raise ValueError("❌ DATABASE_URL is missing in your .env file.")
 
 
-# --- SQLAlchemy setup ---
-engine = create_engine(DATABASE_URL)
+# --------------------------------------------------------
+# SQLAlchemy Engine (Optimized for Neon)
+# --------------------------------------------------------
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,        # prevents stale connections
+    pool_size=5,               # limit connections (Neon requirement)
+    max_overflow=2,            # allow slight surge
+    pool_timeout=30,           # wait for connection before failing
+    echo=False                 # set to True for debug
+)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# --------------------------------------------------------
+# SessionLocal for FastAPI
+# --------------------------------------------------------
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+
+# --------------------------------------------------------
+# Declarative Base
+# --------------------------------------------------------
 Base = declarative_base()
 
 
-# --- Dependency for FastAPI routes ---
+# --------------------------------------------------------
+# FastAPI Dependency
+# --------------------------------------------------------
 def get_db():
     """
-    Creates a new database session for a request and closes it afterward.
-    This is used as a dependency in route functions.
+    Create a new database session for each request.
+    Closes automatically to prevent connection leaks.
     """
     db = SessionLocal()
     try:

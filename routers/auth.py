@@ -1,55 +1,56 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
 from database import get_db
-from models.user import User
-from schemas.auth_schema import SignupSchema, LoginSchema, TokenResponse
-from utils.hashing import Hash
-from utils.jwt_handler import create_access_token
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["Authentication"]
+from schemas.auth_schema import SignupSchema, LoginSchema, TokenResponse
+from services.auth_service import (
+    register_user,
+    login_user,
+    verify_email,
+    send_reset_password_email,
+    reset_password
 )
 
-# --- Register User ---
+router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+
+# ----------------------------------------------------------
+# REGISTER
+# ----------------------------------------------------------
 @router.post("/register", response_model=TokenResponse)
-def register_user(request: SignupSchema, db: Session = Depends(get_db)):
-    # Check if user already exists
-    existing_user = db.query(User).filter(User.email == request.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    # Hash the password
-    hashed_password = Hash.bcrypt(request.password)
-    new_user = User(
-        username=request.username,
-        email=request.email,
-        hashed_password=hashed_password,
-        role="player",
-        is_active = True
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
+def register(data: SignupSchema, db: Session = Depends(get_db)):
+    user = register_user(db, data)
+    token = login_user(db, LoginSchema(credential=user.email, password=data.password))
+    return token
 
 
-# --- Login User ---
-@router.post("/login")
-def login_user(request: LoginSchema, db: Session = Depends(get_db)):
-    user = db.query(User).filter(or_(User.email == request.identifier, User.username == request.identifier)).first()
+# ----------------------------------------------------------
+# LOGIN
+# ----------------------------------------------------------
+@router.post("/login", response_model=TokenResponse)
+def login(data: LoginSchema, db: Session = Depends(get_db)):
+    return login_user(db, data)
 
-    if not user or not Hash.verify(request.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
-        )
 
-    access_token = create_access_token(data={"sub": user.email})
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+# ----------------------------------------------------------
+# VERIFY EMAIL
+# ----------------------------------------------------------
+@router.get("/verify-email")
+def verify_email_route(token: str, db: Session = Depends(get_db)):
+    return verify_email(db, token)
+
+
+# ----------------------------------------------------------
+# SEND RESET PASSWORD EMAIL
+# ----------------------------------------------------------
+@router.post("/forgot-password")
+def forgot_password(email: str, db: Session = Depends(get_db)):
+    return send_reset_password_email(db, email)
+
+
+# ----------------------------------------------------------
+# RESET PASSWORD
+# ----------------------------------------------------------
+@router.post("/reset-password")
+def reset_password_route(token: str, new_password: str, db: Session = Depends(get_db)):
+    return reset_password(db, token, new_password)

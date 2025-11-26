@@ -1,16 +1,16 @@
 from pydantic import BaseModel
+from datetime import datetime
 
-class StatBase(BaseModel):
-    player_name: str
+class StatCreate(BaseModel):
     match_id: int
+    player_id: int
     goals: int = 0
     assists: int = 0
+    rating: float = 0.0
 
-class StatCreate(StatBase):
-    pass
-
-class StatResponse(StatBase):
+class StatResponse(StatCreate):
     id: int
+    created_at: datetime
 
     class Config:
         orm_mode = True

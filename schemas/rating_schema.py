@@ -1,15 +1,15 @@
 from pydantic import BaseModel
+from datetime import datetime
 
-class RatingBase(BaseModel):
-    player_name: str
-    match_id: int
-    rating: float  # 0–10
+class RatingCreate(BaseModel):
+    player_id: int
+    match_id: int | None = None
+    rating: float
+    context: str | None = None
 
-class RatingCreate(RatingBase):
-    pass
-
-class RatingResponse(RatingBase):
+class RatingResponse(RatingCreate):
     id: int
+    created_at: datetime
 
     class Config:
         orm_mode = True

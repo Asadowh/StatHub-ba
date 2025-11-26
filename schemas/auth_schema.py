@@ -1,12 +1,13 @@
 from pydantic import BaseModel, EmailStr, validator
+from datetime import date
 from typing import Optional
 import re
-from datetime import date
 
 class SignupSchema(BaseModel):
     full_name: str
     username: str
     email: EmailStr
+
     password: str
     confirm_password: str
 
@@ -17,7 +18,6 @@ class SignupSchema(BaseModel):
     favorite_position: str
     personal_quote: Optional[str] = None
 
-    # VALIDATIONS
     @validator("password")
     def validate_password(cls, v):
         if len(v) < 8:
@@ -33,8 +33,7 @@ class SignupSchema(BaseModel):
         return v
 
 class LoginSchema(BaseModel):
-    # user can login with email OR username
-    credential: str  # email OR username
+    credential: str  # username OR email
     password: str
 
 class TokenResponse(BaseModel):
