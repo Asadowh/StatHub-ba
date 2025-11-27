@@ -7,7 +7,7 @@ from database import get_db
 from utils.jwt_handler import verify_access_token
 from models.user import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 # ------------------------------------------------------

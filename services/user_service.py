@@ -10,7 +10,13 @@ def get_user_by_id(db: Session, user_id: int):
 
 
 def update_user(db: Session, user: User, data):
-    for field, value in data.dict(exclude_unset=True).items():
+    # Use model_dump for Pydantic V2, fallback to dict for V1
+    if hasattr(data, 'model_dump'):
+        update_data = data.model_dump(exclude_unset=True)
+    else:
+        update_data = data.dict(exclude_unset=True)
+    
+    for field, value in update_data.items():
         setattr(user, field, value)
     db.commit()
     db.refresh(user)

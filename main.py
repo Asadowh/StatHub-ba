@@ -28,7 +28,8 @@ from routers import (
     achievements,
     search,
     dashboard,
-    settings
+    settings,
+    leaderboard
 )
 
 # ---------------------------------------------------------
@@ -40,7 +41,8 @@ app = FastAPI(
     description="Backend API for StatHub – authentication, profiles, stats, matches, news, reactions, trophies, achievements, dashboard, and search."
 )
 
-
+from fastapi.staticfiles import StaticFiles
+app.mount("/static", StaticFiles(directory="static"), name="static")
 # ---------------------------------------------------------
 # CORS (FRONTEND ACCESS)
 # ---------------------------------------------------------
@@ -82,6 +84,7 @@ app.include_router(achievements.router)
 app.include_router(search.router)
 app.include_router(dashboard.router)
 app.include_router(settings.router)
+app.include_router(leaderboard.router)
 
 
 # ---------------------------------------------------------

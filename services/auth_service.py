@@ -11,38 +11,52 @@ from core.email_utils import generate_verification_email, generate_reset_email, 
 # ----------------------------------------------------
 # Create User (Signup)
 # ----------------------------------------------------
-def register_user(db: Session, data):
-    # Check email
-    if db.query(User).filter(User.email == data.email).first():
-        raise HTTPException(status_code=400, detail="Email already taken")
-
-    # Check username
-    if db.query(User).filter(User.username == data.username).first():
+def register_user(db, data, photo_url=None):
+    # Check if email already exists
+    existing_email = db.query(User).filter(User.email == data.email).first()
+    if existing_email:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Check if username already exists
+    existing_username = db.query(User).filter(User.username == data.username).first()
+    if existing_username:
         raise HTTPException(status_code=400, detail="Username already taken")
 
-    # Validate password
-    validate_password(data.password)
-
     new_user = User(
+        full_name=data.full_name,
         username=data.username,
         email=data.email,
-        full_name=data.full_name,
         hashed_password=Hash.hash(data.password),
+
+        # Profile fields
+        height=data.height,
+        jersey_number=data.jersey_number,
+        nationality=data.nationality,
+        birth_date=data.birth_date,
+        favorite_position=data.favorite_position,
+        personal_quote=data.personal_quote,
+
+        role="player",
         is_active=True,
         is_email_verified=False,
+
+        photo_url=photo_url
     )
 
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    # Generate verification email
-    html, token = generate_verification_email(data.email)
-    send_email(
-        to_email=data.email,
-        subject="Verify your StatHub account",
-        html_content=html
-    )
+    # Generate verification email (optional - won't crash if SMTP fails)
+    try:
+        html, token = generate_verification_email(data.email)
+        send_email(
+            to_email=data.email,
+            subject="Verify your StatHub account",
+            html_content=html
+        )
+    except Exception as e:
+        print(f"⚠️ Email sending skipped: {e}")
 
     return new_user
 

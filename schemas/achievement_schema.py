@@ -14,7 +14,7 @@ class AchievementResponse(AchievementCreate):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class PlayerAchievementResponse(BaseModel):
@@ -26,4 +26,4 @@ class PlayerAchievementResponse(BaseModel):
     unlocked_at: datetime | None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
