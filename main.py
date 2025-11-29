@@ -47,7 +47,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # CORS (FRONTEND ACCESS)
 # ---------------------------------------------------------
 origins = [
-    "*",  # allow all for now (you can lock later)
+    "http://localhost:8080",  # Frontend dev server
+    "http://localhost:3000",  # Alternative frontend port
+    "http://127.0.0.1:8080",
+    "http://127.0.0.1:3000",
+    "*",  # Fallback: allow all for now (you can lock later)
 ]
 
 app.add_middleware(
@@ -66,6 +70,21 @@ app.add_middleware(
 def on_startup():
     Base.metadata.create_all(bind=engine)
     print("📦 Database tables created / verified.")
+    
+    # Seed achievements automatically on startup
+    try:
+        from scripts.seed_achievements import seed_achievements
+        from database import SessionLocal
+        db = SessionLocal()
+        try:
+            seed_achievements(db, check_existing_players=False)  # Don't check players on startup for performance
+            print("🌱 Achievements seeded successfully.")
+        finally:
+            db.close()
+    except Exception as e:
+        # Don't crash the server if seeding fails - just log it
+        print(f"⚠️  Warning: Could not seed achievements on startup: {e}")
+        print("   You can manually seed achievements via POST /achievements/seed endpoint.")
 
 
 # ---------------------------------------------------------

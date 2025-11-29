@@ -6,28 +6,42 @@ from core.config import settings
 from utils.email_templates import (
     verification_email_template,
     reset_password_template,
+    email_verified_welcome_template,
 )
 from utils.jwt_handler import create_email_token, create_reset_token
 
 
 # ------------------------------------------------------
-# Generate Email Verification Link
+# Generate Email Verification Code (6 digits)
 # ------------------------------------------------------
-def generate_verification_email(email: str):
-    token = create_email_token(email)
-    verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
-    html = verification_email_template(verification_url)
-    return html, token
+import random
+
+def generate_verification_code() -> str:
+    """Generate a random 6-digit verification code."""
+    return str(random.randint(100000, 999999))
+
+def generate_verification_email(email: str, code: str):
+    """Generate verification email with 6-digit code."""
+    html = verification_email_template(code)
+    return html
 
 
 # ------------------------------------------------------
-# Generate Password Reset Link
+# Generate Password Reset Code (6 digits)
 # ------------------------------------------------------
-def generate_reset_email(email: str):
-    token = create_reset_token(email)
-    reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
-    html = reset_password_template(reset_url)
-    return html, token
+def generate_reset_email(email: str, code: str):
+    """Generate password reset email with 6-digit code."""
+    html = reset_password_template(code)
+    return html
+
+
+# ------------------------------------------------------
+# Generate Welcome Email (after verification)
+# ------------------------------------------------------
+def generate_welcome_email(user_name: str = None):
+    """Generate welcome email after email verification."""
+    html = email_verified_welcome_template(user_name)
+    return html
 
 
 # ------------------------------------------------------

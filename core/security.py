@@ -24,6 +24,16 @@ def validate_password(password: str):
             status_code=400,
             detail="Password must contain at least one uppercase letter."
         )
+    if not re.search(r"[a-z]", password):
+        raise HTTPException(
+            status_code=400,
+            detail="Password must contain at least one lowercase letter."
+        )
+    if not re.search(r"[^A-Za-z0-9]", password):
+        raise HTTPException(
+            status_code=400,
+            detail="Password must contain at least one special character."
+        )
 
 
 # ------------------------------------------------------
@@ -54,4 +64,21 @@ def get_current_user(
             detail="User not found."
         )
 
+    return user
+
+
+# ------------------------------------------------------
+# Admin Auth Dependency: get_current_admin()
+# ------------------------------------------------------
+def get_current_admin(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    """Get current user and verify they are an admin"""
+    user = get_current_user(token, db)
+    if user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required.",
+        )
     return user

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 from models.achievement import Achievement, PlayerAchievement
 from services.xp_service import update_user_xp_and_level
 
@@ -48,7 +48,7 @@ def update_player_achievement(db: Session, user_id: int, metric: str, increment:
         # Unlock if reached target
         if not record.unlocked and record.current_value >= ach.target_value:
             record.unlocked = True
-            record.unlocked_at = datetime.utcnow()
+            record.unlocked_at = datetime.now(timezone.utc)
             achievement_unlocked = True
 
         db.commit()

@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date
 from sqlalchemy.sql import func
+from datetime import datetime, timedelta
 from database import Base
 
 class User(Base):
@@ -26,6 +27,12 @@ class User(Base):
     role = Column(String(20), default="player")
     is_active = Column(Boolean, default=True)
     is_email_verified = Column(Boolean, default=False)
+    verification_code = Column(String(6), nullable=True)
+    verification_code_expires_at = Column(DateTime(timezone=True), nullable=True)
+    
+    # Password reset code
+    reset_code = Column(String(6), nullable=True)
+    reset_code_expires_at = Column(DateTime(timezone=True), nullable=True)
     
     # XP and Level (calculated from achievements)
     xp = Column(Integer, default=0)

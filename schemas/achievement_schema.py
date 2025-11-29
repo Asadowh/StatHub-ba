@@ -1,16 +1,22 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 class AchievementCreate(BaseModel):
     name: str
     description: str
     tier: str
-    metric: str
+    points: int
     target_value: int
-    points: int = 0
+    metric: Optional[str] = None  # Optional internal field for checker logic
 
-class AchievementResponse(AchievementCreate):
+class AchievementResponse(BaseModel):
     id: int
+    name: str
+    description: str
+    tier: str
+    points: int
+    target_value: int
     created_at: datetime
 
     class Config:

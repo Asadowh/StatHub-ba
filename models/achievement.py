@@ -9,12 +9,11 @@ class Achievement(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     description = Column(String(255), nullable=False)
-
-    tier = Column(String(20), nullable=False)  # "Beginner", "Advanced", "Expert", "All"
-    metric = Column(String(50), nullable=False)  # "goals", "assists", "matches", etc.
+    tier = Column(String(20), nullable=False)  # "Beginner", "Advanced", "Expert"
+    points = Column(Integer, nullable=False, default=0)
     target_value = Column(Integer, nullable=False)
-    points = Column(Integer, default=0)
-
+    metric = Column(String(50), nullable=True)  # Internal field for achievement checking logic
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 

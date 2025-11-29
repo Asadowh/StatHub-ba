@@ -149,3 +149,33 @@ def recalculate_all_xp(current_user=Depends(get_current_user), db: Session = Dep
         updated += 1
     
     return {"message": f"Recalculated XP for {updated} users"}
+
+
+@router.put("/{user_id}/make-admin")
+def make_admin(
+    user_id: int,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Make a user an admin (admin only, or first user becomes admin)"""
+    target_user = db.query(User).filter(User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Allow if current user is admin, OR if this is the first user in the system
+    is_first_user = db.query(User).count() == 1
+    if current_user.role != "admin" and not is_first_user:
+        raise HTTPException(status_code=403, detail="Only admin can promote users to admin")
+    
+    target_user.role = "admin"
+    db.commit()
+    db.refresh(target_user)
+    
+    return {
+        "message": f"User {target_user.username} is now an admin",
+        "user": {
+            "id": target_user.id,
+            "username": target_user.username,
+            "role": target_user.role
+        }
+    }

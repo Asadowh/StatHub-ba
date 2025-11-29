@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from models.stat import Stat
 from models.match import Match
 from models.user import User
+from services.achievement_checker import check_and_unlock_achievements
+from services.trophy_service import award_trophy_for_match
 
 def create_stat(db: Session, data):
     stat = Stat(
@@ -15,6 +17,27 @@ def create_stat(db: Session, data):
     db.add(stat)
     db.commit()
     db.refresh(stat)
+    
+    # Check and unlock achievements for this player after stat creation
+    try:
+        result = check_and_unlock_achievements(db, data.player_id, current_stat_id=stat.id)
+        if result:
+            print(f"New achievement(s) unlocked for user {data.player_id}")
+    except Exception as e:
+        # Log error but don't fail stat creation
+        import traceback
+        print(f"Error checking achievements for user {data.player_id}: {e}")
+        print(traceback.format_exc())
+    
+    # Award trophy to best player of the match (recalculates if needed)
+    try:
+        award_trophy_for_match(db, data.match_id)
+    except Exception as e:
+        # Log error but don't fail stat creation
+        import traceback
+        print(f"Error awarding trophy for match {data.match_id}: {e}")
+        print(traceback.format_exc())
+    
     return stat
 
 
