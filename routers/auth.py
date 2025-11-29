@@ -64,14 +64,14 @@ def register(
     if photo:
         ext = photo.filename.split(".")[-1]
         file_name = f"{uuid.uuid4()}.{ext}"
-        file_path = f"static/profile_pics/{file_name}"
+        file_path = f"uploads/avatars/{file_name}"
 
-        os.makedirs("static/profile_pics", exist_ok=True)
+        os.makedirs("uploads/avatars", exist_ok=True)
 
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(photo.file, buffer)
 
-        photo_url = f"/static/profile_pics/{file_name}"
+        photo_url = f"/uploads/avatars/{file_name}"
 
     # Create user with service
     user = register_user(db, data, photo_url=photo_url)

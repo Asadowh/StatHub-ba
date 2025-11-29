@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
 from database import engine, Base
 
-# Import all models so they are registered for table creation
+# Import models for table creation
 import models.user
 import models.match
 import models.stat
@@ -14,7 +14,7 @@ import models.comment
 import models.reaction
 import models.achievement
 
-# Import routers
+# Routers
 from routers import (
     auth,
     users,
@@ -32,26 +32,29 @@ from routers import (
     leaderboard
 )
 
-# ---------------------------------------------------------
-# FastAPI App Initialization
-# ---------------------------------------------------------
 app = FastAPI(
     title="StatHub Backend",
     version="1.0.0",
-    description="Backend API for StatHub – authentication, profiles, stats, matches, news, reactions, trophies, achievements, dashboard, and search."
+    description="Backend API for StatHub."
 )
 
-from fastapi.staticfiles import StaticFiles
-app.mount("/static", StaticFiles(directory="static"), name="static")
-# ---------------------------------------------------------
-# CORS (FRONTEND ACCESS)
-# ---------------------------------------------------------
+# Static files (if folder exists)
+try:
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+except:
+    print("⚠️ Static folder not found. Skipping mount.")
+
+# Uploads (if used)
+try:
+    app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+except:
+    print("⚠️ Uploads folder not found. Skipping mount.")
+
+# CORS
 origins = [
-    "http://localhost:8080",  # Frontend dev server
-    "http://localhost:3000",  # Alternative frontend port
-    "http://127.0.0.1:8080",
-    "http://127.0.0.1:3000",
-    "*",  # Fallback: allow all for now (you can lock later)
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://stathub-delta.vercel.app",
 ]
 
 app.add_middleware(
@@ -62,34 +65,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# ---------------------------------------------------------
-# Create Tables at Startup
-# ---------------------------------------------------------
+# Startup
 @app.on_event("startup")
-def on_startup():
+def startup():
     Base.metadata.create_all(bind=engine)
-    print("📦 Database tables created / verified.")
-    
-    # Seed achievements automatically on startup
+    print("📦 Tables ready.")
+
+    # Auto-seed achievements (safe mode)
     try:
         from scripts.seed_achievements import seed_achievements
         from database import SessionLocal
+
         db = SessionLocal()
-        try:
-            seed_achievements(db, check_existing_players=False)  # Don't check players on startup for performance
-            print("🌱 Achievements seeded successfully.")
-        finally:
-            db.close()
+        seed_achievements(db, check_existing_players=True)
+        db.close()
+        print("🌱 Achievements seeded.")
     except Exception as e:
-        # Don't crash the server if seeding fails - just log it
-        print(f"⚠️  Warning: Could not seed achievements on startup: {e}")
-        print("   You can manually seed achievements via POST /achievements/seed endpoint.")
+        print("⚠️ Achievement seeding skipped:", e)
 
-
-# ---------------------------------------------------------
-# Routers Registration
-# ---------------------------------------------------------
+# Routers
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(matches.router)
@@ -105,10 +99,6 @@ app.include_router(dashboard.router)
 app.include_router(settings.router)
 app.include_router(leaderboard.router)
 
-
-# ---------------------------------------------------------
-# Root Endpoint
-# ---------------------------------------------------------
 @app.get("/")
 def root():
     return {"message": "StatHub API is running 🚀"}

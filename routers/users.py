@@ -17,7 +17,7 @@ import uuid
 router = APIRouter(prefix="/users", tags=["Users"])
 
 # Ensure upload directory exists
-UPLOAD_DIR = "static/profile_pics"
+UPLOAD_DIR = "uploads/avatars"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
@@ -62,7 +62,7 @@ def upload_photo(
         shutil.copyfileobj(photo.file, buffer)
     
     # Update user's photo_url
-    current_user.photo_url = f"/static/profile_pics/{file_name}"
+    current_user.photo_url = f"/uploads/avatars/{file_name}"
     db.commit()
     db.refresh(current_user)
     

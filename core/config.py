@@ -21,6 +21,6 @@ class Settings:
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")  # Gmail App Password
     EMAIL_FROM: str = os.getenv("EMAIL_FROM", "")  # Same as SMTP_USER usually
     
-    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
 
 settings = Settings()
