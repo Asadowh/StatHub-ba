@@ -9,3 +9,4 @@ ALTER TABLE news ADD COLUMN IF NOT EXISTS category VARCHAR(50) NULL;
 -- WHERE table_name = 'news' AND column_name = 'category';
 
 
+

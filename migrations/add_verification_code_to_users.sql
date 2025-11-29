@@ -10,3 +10,4 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_expires_at TIMESTAM
 -- WHERE table_name = 'users' AND column_name IN ('verification_code', 'verification_code_expires_at');
 
 
+

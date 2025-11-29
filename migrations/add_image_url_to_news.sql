@@ -10,3 +10,4 @@ ADD COLUMN IF NOT EXISTS image_url VARCHAR;
 -- WHERE table_name = 'news' AND column_name = 'image_url';
 
 
+

@@ -97,3 +97,4 @@ ls -la static/news_images/
 
 **Directory structure is ready! 🎯**
 
+

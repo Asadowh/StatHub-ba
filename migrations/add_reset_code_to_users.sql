@@ -10,3 +10,4 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_code_expires_at TIMESTAMP WITH 
 -- WHERE table_name = 'users' AND column_name IN ('reset_code', 'reset_code_expires_at');
 
 
+
