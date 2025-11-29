@@ -27,3 +27,4 @@ Before using the password reset feature, you must run the database migration to 
 
 The password reset feature will fail with database errors because the columns don't exist!
 
+

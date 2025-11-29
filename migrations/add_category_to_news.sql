@@ -8,3 +8,4 @@ ALTER TABLE news ADD COLUMN IF NOT EXISTS category VARCHAR(50) NULL;
 -- FROM information_schema.columns 
 -- WHERE table_name = 'news' AND column_name = 'category';
 
+

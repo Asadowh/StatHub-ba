@@ -41,3 +41,4 @@ If the script still hangs even after stopping the backend:
 - **Error about connections**: Close all database clients and try again
 - **Permission errors**: Check your database user has DROP TABLE permissions
 
+

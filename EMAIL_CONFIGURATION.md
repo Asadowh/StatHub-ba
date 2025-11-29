@@ -50,3 +50,4 @@ FRONTEND_URL=http://localhost:8080
 - They enter the code in the verification page
 - Codes expire after 15 minutes
 
+

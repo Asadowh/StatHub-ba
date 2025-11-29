@@ -9,3 +9,4 @@ ADD COLUMN IF NOT EXISTS image_url VARCHAR;
 -- FROM information_schema.columns 
 -- WHERE table_name = 'news' AND column_name = 'image_url';
 
+
