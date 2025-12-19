@@ -1,19 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
+from core.config import settings as config
 from database import engine, Base
-
-# Import models for table creation
-import models.user
-import models.match
-import models.stat
-import models.rating
-import models.trophy
-import models.news
-import models.comment
-import models.reaction
-import models.achievement
-
 # Routers
 from routers import (
     auth,
@@ -31,6 +21,8 @@ from routers import (
     settings,
     leaderboard
 )
+
+# Import models for table creation
 
 app = FastAPI(
     title="StatHub Backend",
@@ -52,9 +44,7 @@ except:
 
 # CORS
 origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://stathub-delta.vercel.app",
+    config.FRONTEND_URL
 ]
 
 app.add_middleware(
@@ -64,6 +54,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Startup
 @app.on_event("startup")
@@ -83,6 +74,7 @@ def startup():
     except Exception as e:
         print("⚠️ Achievement seeding skipped:", e)
 
+
 # Routers
 app.include_router(auth.router)
 app.include_router(users.router)
@@ -98,6 +90,7 @@ app.include_router(search.router)
 app.include_router(dashboard.router)
 app.include_router(settings.router)
 app.include_router(leaderboard.router)
+
 
 @app.get("/")
 def root():
